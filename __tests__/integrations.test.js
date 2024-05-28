@@ -11,7 +11,11 @@ afterAll(() => {
   return db.end();
 });
 
-
+describe('General Errors', () => {
+    test("GET 404: responds with a 404 when trying to access a non-existent endpoint", () => {
+        return request(app).get("/api/not-an-endpoint").expect(404)
+    })
+});
 describe("GET /api/topics", () => {
   test("GET 200: responds with an array of topics", () => {
     return request(app).get("/api/topics").expect(200)
