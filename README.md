@@ -1,6 +1,16 @@
 # Northcoders News API
 
-For instructions, please head over to [L2C NC News](https://l2c.northcoders.com/courses/be/nc-news).
+## Instructions:
+
+To run this project, two additional files need to be created:
+* .env.development 
+    - `PGDATABASE=YOUR_DEV_DATABASE_NAME`
+* .env.test\
+    - `PGDATABASE=YOUR_TEST_DATABASE_NAME`  
+
+Where inside the respective `PGDATABASE` environment variable has been declared
+
+
 
 
 
