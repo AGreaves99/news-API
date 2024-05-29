@@ -42,3 +42,14 @@ exports.selectCommentsByArticleId = (article_id) => {
       return rows;
     });
 };
+
+exports.insertComment = (postData) => {
+  return db.query(
+    `INSERT INTO comments (article_id, author, body)
+    VALUES ($1, $2, $3)
+    RETURNING *`,
+    postData
+  ).then(({rows}) => {
+    return rows[0]
+  })
+}
