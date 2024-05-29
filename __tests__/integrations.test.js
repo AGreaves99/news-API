@@ -14,7 +14,9 @@ afterAll(() => {
 
 describe("General Errors", () => {
   test("GET 404: responds with a 404 when trying to access a non-existent endpoint", () => {
-    return request(app).get("/api/not-an-endpoint").expect(404);
+    return request(app).get("/api/not-an-endpoint").expect(404).then(({ body }) => {
+      expect(body.msg).toBe("Invalid endpoint")
+    });
   });
 });
 describe("GET /api/topics", () => {
@@ -71,6 +73,14 @@ describe("GET /api/articles/:article_id", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("Article does not exist");
+      });
+  });
+  test("GET 400: responds with an appropriate status and error message when given a non-valid ID", () => {
+    return request(app)
+      .get("/api/articles/not-valid-id")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
       });
   });
 });
