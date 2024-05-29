@@ -163,3 +163,65 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe("POST /api/articles/:article_id/comments", () => {
+  test("POST 201: responds with the comment posted ", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "This is a good article",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.comment).toMatchObject({
+          comment_id: expect.any(Number),
+          votes: expect.any(Number),
+          created_at: expect.any(String),
+          author: "butter_bridge",
+          body: "This is a good article",
+          article_id: 1,
+        });
+      });
+  });
+  test("POST: 400 responds with appropriate status and error message when provided with a malformed comment object", () => {
+    const newComment = {
+      username: "butter_bridge",
+      not_a_property: "not-a-value",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid POST body");
+      });
+  });
+  test("POST: 400 responds with appropriate status and error message when provided a valid but non-existent article_id", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "This is a good article",
+    };
+    return request(app)
+      .post("/api/articles/9999/comments")
+      .send(newComment)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid POST request");
+      });
+  });
+  test("POST: 400 responds with appropriate status and error message when provided a valid but non-existent username", () => {
+    const newComment = {
+      username: "invalid_id",
+      body: "This is a good article",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid POST request");
+      });
+  });
+});
