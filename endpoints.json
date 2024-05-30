@@ -60,6 +60,10 @@
   },
   "POST /api/articles/:article_id/comments": {
     "description": "Creates a new comment with the respective article_id",
+    "exampleRequestBody": {
+      "username": "butter_bridge",
+      "body": "This is a good article"
+    },
     "exampleResponse": {
       "comment": {
         "comment_id": 9,
@@ -73,7 +77,7 @@
   },
   "PATCH /api/articles/:article_id": {
     "description": "Increments an article's votes by the amount given in request body",
-    "exampleBody": {
+    "exampleRequestBody": {
       "inc_votes": 2
     },
     "exampleResponse": {
