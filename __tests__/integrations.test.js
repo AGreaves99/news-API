@@ -209,7 +209,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       .send(newComment)
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Invalid request");
+        expect(body.msg).toBe("Request not found");
       });
   });
   test("POST: 400 responds with appropriate status and error message when provided a valid but non-existent username", () => {
@@ -222,7 +222,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       .send(newComment)
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Invalid request");
+        expect(body.msg).toBe("Request not found");
       });
   });
 });
