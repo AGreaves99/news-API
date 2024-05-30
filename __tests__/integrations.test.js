@@ -283,7 +283,7 @@ describe("PATCH /api/articles/:article_id", () => {
         expect(body.msg).toBe("Article does not exist");
       });
   });
-  test("PATCH: 400 responds with appropriate status and error message when provided an invalid treasure_id", () => {
+  test("PATCH: 400 responds with appropriate status and error message when provided an invalid article_id", () => {
     const newVote = {
       inc_votes: 21,
     };
