@@ -27,7 +27,7 @@ app.post("/api/articles/:article_id/comments", postComment);
 app.patch("/api/articles/:article_id", patchArticle)
 
 app.all("*", (req, res) => {
-  res.status(404).send({ msg: "Invalid endpoint" });
+  res.status(404).send({ msg: "Endpoint not found" });
 });
 
 app.use((err, req, res, next) => {

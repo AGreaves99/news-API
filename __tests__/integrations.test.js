@@ -18,7 +18,7 @@ describe("General Errors", () => {
       .get("/api/not-an-endpoint")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Invalid endpoint");
+        expect(body.msg).toBe("Endpoint not found");
       });
   });
 });
