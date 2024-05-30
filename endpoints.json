@@ -93,5 +93,17 @@
   },
   "DELETE /api/comments/:comment_id": {
     "description": "deletes comment with the respective id"
+  },
+  "GET /api/users": {
+    "description": "serves an array of users to the client",
+    "exampleResponse": {
+      "users": [
+        {
+          "username": "butter_bridge",
+          "name": "jonny",
+          "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+        }
+      ]
+    }
   }
 }

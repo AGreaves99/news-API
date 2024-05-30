@@ -16,6 +16,7 @@ const {
   serverError,
 } = require("./controllers/errorHandling.controllers");
 const { deleteComment } = require("./controllers/comments.controllers");
+const { getUsers } = require("./controllers/users.controllers")
 
 const app = express();
 
@@ -36,6 +37,8 @@ app.post("/api/articles/:article_id/comments", postComment);
 app.patch("/api/articles/:article_id", patchArticle);
 
 app.delete("/api/comments/:comment_id", deleteComment);
+
+app.get("/api/users", getUsers)
 
 app.all("*", endpointError);
 
