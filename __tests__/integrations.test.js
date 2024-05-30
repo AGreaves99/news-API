@@ -113,6 +113,43 @@ describe("GET /api/articles", () => {
         });
       });
   });
+  test("GET 200: responds with an array of articles with a topic equal to that in the query", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles.length).toBe(12);
+        articles.forEach((article) => {
+          expect(article).toMatchObject({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            topic: "mitch",
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            comment_count: expect.any(Number),
+          });
+        });
+      });
+  });
+  test("GET 200: sends an empty array when topic query is valid but no articles have that topic", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(0)
+      });
+  });
+  test("GET 404: sends an error message when topic query is invalid", () => {
+    return request(app)
+      .get("/api/articles?topic=hello")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("slug not found");
+      });
+  });
 });
 
 describe("GET /api/articles/:article_id/comments", () => {
