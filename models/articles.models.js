@@ -53,3 +53,18 @@ exports.insertComment = (postData) => {
     return rows[0]
   })
 }
+
+exports.updateArticle = (patchData) => {
+  return db.query(
+    `UPDATE articles
+    SET votes = votes + $1
+    WHERE article_id = $2
+    RETURNING *`,
+    patchData
+  ).then(({rows}) => {
+    if (rows.length === 0){
+      return Promise.reject({ status: 404, msg: "Article does not exist" })
+    }
+    return rows[0]
+  })
+}

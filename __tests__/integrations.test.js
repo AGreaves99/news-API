@@ -22,6 +22,7 @@ describe("General Errors", () => {
       });
   });
 });
+
 describe("GET /api/topics", () => {
   test("GET 200: responds with an array of topics", () => {
     return request(app)
@@ -195,7 +196,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       .send(newComment)
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Invalid POST body");
+        expect(body.msg).toBe("Invalid body");
       });
   });
   test("POST: 400 responds with appropriate status and error message when provided a valid but non-existent article_id", () => {
@@ -208,7 +209,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       .send(newComment)
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Invalid POST request");
+        expect(body.msg).toBe("Invalid request");
       });
   });
   test("POST: 400 responds with appropriate status and error message when provided a valid but non-existent username", () => {
@@ -221,7 +222,77 @@ describe("POST /api/articles/:article_id/comments", () => {
       .send(newComment)
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Invalid POST request");
+        expect(body.msg).toBe("Invalid request");
+      });
+  });
+});
+
+describe("PATCH /api/articles/:article_id", () => {
+  test("PATCH: 200 updates the cost_at_auction of an existing treasure", () => {
+    const newVote = { inc_votes: 2 };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(newVote)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toMatchObject({
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: "2020-07-09T20:11:00.000Z",
+          votes: 102,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        });
+      });
+  });
+  test("PATCH: 400 responds with appropriate status and error message when provided with a malformed vote object", () => {
+    const newVote = {
+      not_an_article_property: 12,
+    };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(newVote)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid body");
+      });
+  });
+  test("PATCH: 400 responds with appropriate status and error message when provided with an vote object that violates the table schema", () => {
+    const newVote = {
+      inc_votes: "not_a_number",
+    };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(newVote)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("PATCH: 404 responds with appropriate status and error message when provided a valid but non-existent article_id", () => {
+    const newVote = {
+      inc_votes: 12,
+    };
+    return request(app)
+      .patch("/api/articles/9999")
+      .send(newVote)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Article does not exist");
+      });
+  });
+  test("PATCH: 400 responds with appropriate status and error message when provided an invalid treasure_id", () => {
+    const newVote = {
+      inc_votes: 21,
+    };
+    return request(app)
+      .patch("/api/articles/not_a_number")
+      .send(newVote)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
       });
   });
 });
