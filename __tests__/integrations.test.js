@@ -212,6 +212,19 @@ describe("POST /api/articles/:article_id/comments", () => {
         expect(body.msg).toBe("Request not found");
       });
   });
+  test("POST: 404 responds with appropriate status and error message when provided an invalid article_id", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "This is a good article",
+    };
+    return request(app)
+      .post("/api/articles/not-a-number/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
   test("POST: 400 responds with appropriate status and error message when provided a valid but non-existent username", () => {
     const newComment = {
       username: "invalid_id",
