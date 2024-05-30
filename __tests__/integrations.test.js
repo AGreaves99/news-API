@@ -228,7 +228,7 @@ describe("POST /api/articles/:article_id/comments", () => {
 });
 
 describe("PATCH /api/articles/:article_id", () => {
-  test("PATCH: 200 updates the cost_at_auction of an existing treasure", () => {
+  test("PATCH: 200 updates the votes of an existing article", () => {
     const newVote = { inc_votes: 2 };
     return request(app)
       .patch("/api/articles/1")
