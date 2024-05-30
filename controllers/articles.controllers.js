@@ -5,10 +5,16 @@ const {
   insertComment,
   updateArticle,
 } = require("../models/articles.models");
+const { checkExists } = require("../models/shared.models");
 
 exports.getArticles = (req, res, next) => {
-  selectArticles()
-    .then((articles) => {
+  const { topic } = req.query;
+  const articlesAndQuery = [selectArticles(topic)];
+  if (topic) {
+    articlesAndQuery.push(checkExists("topics", "slug", topic));
+  }
+  return Promise.all(articlesAndQuery)
+    .then(([articles]) => {
       res.status(200).send({ articles });
     })
     .catch(next);
