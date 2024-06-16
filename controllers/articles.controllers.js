@@ -11,12 +11,15 @@ const { checkExists } = require("../models/shared.models");
 exports.getArticles = (req, res, next) => {
   const { topic, sort_by, order, limit, p } = req.query;
   const articlesAndQuery = [selectArticles(topic, sort_by, order, limit, p)];
+  // console.log(articlesAndQuery);
   if (topic) {
     articlesAndQuery.push(checkExists("topics", "slug", topic));
   }
   return Promise.all(articlesAndQuery)
-    .then(([articles]) => {
-      res.status(200).send({ articles });
+    .then(([countAndArticles]) => {
+      const {total_count} = countAndArticles[0][0]
+      const articles = countAndArticles[1]
+      res.status(200).send({ total_count, articles });
     })
     .catch(next);
 };

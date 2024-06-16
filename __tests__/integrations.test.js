@@ -107,7 +107,7 @@ describe("GET /api/articles/:article_id", () => {
   });
 });
 
-describe.only("GET /api/articles", () => {
+describe("GET /api/articles", () => {
   test("GET 200: responds with an array of articles, sorted by date descending", () => {
     return request(app)
       .get("/api/articles")
@@ -303,6 +303,18 @@ describe.only("GET /api/articles", () => {
         });
       });
   });
+  test("GET 200: returns no articles when limit * (p + 1) is greater than the total number of articles", () => {
+    return request(app)
+      .get("/api/articles?limit=10&p=3")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toHaveLength(0);
+        expect(articles).toBeSortedBy("created_at", {
+          descending: true,
+        });
+      });
+  });
   test("GET 200: defaults to first page when not supplied a p query", () => {
     return request(app)
       .get("/api/articles?limit=12")
@@ -341,6 +353,24 @@ describe.only("GET /api/articles", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Invalid p query");
+      });
+  });
+  test("GET 200: returned object should have a total_count property that ignores the limit and p query", () => {
+    return request(app)
+      .get("/api/articles?limit=12")
+      .expect(200)
+      .then(({ body }) => {
+        const { total_count } = body;
+        expect(total_count).toBe(13);
+      });
+  });
+  test("GET 200: total_count property correctly accounts for the topic query", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then(({ body }) => {
+        const { total_count } = body;
+        expect(total_count).toBe(0);
       });
   });
 });

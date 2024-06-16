@@ -17,44 +17,52 @@ exports.selectArticles = (
     "article_img_url",
     "comment_count",
   ];
-  const queryValues = [];
+  const selectQueryValues = [];
+  const totalCountQueryValues = []
 
-  let queryStr = `SELECT articles.article_id, title, articles.author, topic, articles.created_at, articles.votes, article_img_url, COUNT(comments.comment_id) :: INT comment_count
+  let selectQueryStr = `SELECT articles.article_id, title, articles.author, topic, articles.created_at, articles.votes, article_img_url, COUNT(comments.comment_id) :: INT comment_count
   FROM articles
   LEFT JOIN comments
   ON articles.article_id = comments.article_id`;
 
+  let totalCountQueryStr = `SELECT COUNT(articles) :: INT total_count FROM articles`
+
   if (topic) {
-    queryValues.push(topic);
-    queryStr += ` WHERE topic = $${queryValues.length}`;
+    selectQueryValues.push(topic);
+    totalCountQueryValues.push(topic)
+    selectQueryStr += ` WHERE topic = $${selectQueryValues.length}`
+    totalCountQueryStr += ` WHERE topic = $1`;
   }
 
   if (!allowedSorts.includes(sort_by)) {
     return Promise.reject({ status: 400, msg: "Invalid sort query" });
   }
-  queryStr += ` GROUP BY articles.article_id
+  selectQueryStr += ` GROUP BY articles.article_id
   ORDER BY ${sort_by}`;
 
   if (!["asc", "desc"].includes(order)) {
     return Promise.reject({ status: 400, msg: "Invalid order query" });
   }
-  queryStr += ` ${order}`;
+  selectQueryStr += ` ${order}`;
 
   if (Number.isNaN(Number(limit))) {
     return Promise.reject({ status: 400, msg: "Invalid limit query" });
   }
-  queryValues.push(limit);
-  queryStr += ` LIMIT $${queryValues.length}`;
+  selectQueryValues.push(limit);
+  selectQueryStr += ` LIMIT $${selectQueryValues.length}`;
 
   if (Number.isNaN(Number(p))) {
     return Promise.reject({ status: 400, msg: "Invalid p query" });
   }
-  queryValues.push(limit * (p - 1))
-  queryStr += ` OFFSET $${queryValues.length}`
+  selectQueryValues.push(limit * (p - 1))
+  selectQueryStr += ` OFFSET $${selectQueryValues.length}`
 
-  return db.query(queryStr, queryValues).then(({ rows }) => {
-    return rows;
-  });
+  const promises = [db.query(totalCountQueryStr, totalCountQueryValues), db.query(selectQueryStr, selectQueryValues)]
+  return Promise.all(promises).then(([returnedTotalCount, returnedArticles]) => {
+    const total_count = returnedTotalCount.rows
+    const articles = returnedArticles.rows
+    return [total_count, articles]
+  })
 };
 
 exports.selectArticleById = (article_id) => {
