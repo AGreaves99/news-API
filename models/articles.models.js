@@ -1,21 +1,42 @@
 const db = require("../db/connection");
 
-exports.selectArticles = (topic) => {
-  const queryValues = []
+exports.selectArticles = (topic, sort_by = "created_at", order = "desc") => {
+  const allowedSorts = [
+    "article_id",
+    "author",
+    "title",
+    "topic",
+    "created_at",
+    "votes",
+    "article_img_url",
+    "comment_count",
+  ];
+  const queryValues = [];
+
   let queryStr = `SELECT articles.article_id, title, articles.author, topic, articles.created_at, articles.votes, article_img_url, COUNT(comments.comment_id) :: INT comment_count
   FROM articles
   LEFT JOIN comments
   ON articles.article_id = comments.article_id`;
+
   if (topic) {
-    queryValues.push(topic)
-    queryStr += ` WHERE topic = $1`
+    queryValues.push(topic);
+    queryStr += ` WHERE topic = $1`;
+  }
+
+  if (!allowedSorts.includes(sort_by)) {
+    return Promise.reject({ status: 400, msg: "Invalid sort query" });
   }
   queryStr += ` GROUP BY articles.article_id
-  ORDER BY created_at DESC`
-  return db.query(queryStr, queryValues)
-    .then(({ rows }) => {
-      return rows;
-    });
+  ORDER BY ${sort_by}`;
+
+  if (!["asc", "desc"].includes(order)) {
+    return Promise.reject({ status: 400, msg: "Invalid order query" });
+  }
+  queryStr += ` ${order}`;
+
+  return db.query(queryStr, queryValues).then(({ rows }) => {
+    return rows;
+  });
 };
 
 exports.selectArticleById = (article_id) => {
