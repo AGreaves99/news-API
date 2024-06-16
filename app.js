@@ -1,7 +1,6 @@
 const express = require("express");
 
 const { getTopics } = require("./controllers/topics.controllers");
-const { getApi } = require("./controllers/api.controllers");
 const {
   getArticles,
   getArticleById,
@@ -16,13 +15,14 @@ const {
   serverError,
 } = require("./controllers/errorHandling.controllers");
 const { deleteComment } = require("./controllers/comments.controllers");
-const { getUsers } = require("./controllers/users.controllers")
+const { getUsers } = require("./controllers/users.controllers");
+const apiRouter = require("./routes/api-router");
 
 const app = express();
 
 app.use(express.json());
 
-app.get("/api", getApi);
+app.use("/api", apiRouter)
 
 app.get("/api/topics", getTopics);
 
