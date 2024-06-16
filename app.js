@@ -1,6 +1,5 @@
 const express = require("express");
 
-const { getTopics } = require("./controllers/topics.controllers");
 const {
   getArticles,
   getArticleById,
@@ -17,6 +16,7 @@ const {
 const { deleteComment } = require("./controllers/comments.controllers");
 const { getUsers } = require("./controllers/users.controllers");
 const apiRouter = require("./routes/api-router");
+const topicsRouter = require("./routes/topics-router");
 
 const app = express();
 
@@ -24,7 +24,7 @@ app.use(express.json());
 
 app.use("/api", apiRouter)
 
-app.get("/api/topics", getTopics);
+app.use("/api/topics", topicsRouter)
 
 app.get("/api/articles", getArticles);
 
