@@ -487,3 +487,70 @@ describe("GET /api/users:username", () => {
       });
   });
 });
+
+describe("PATCH /api/comments/:comment_id", () => {
+  test("PATCH: 200 updates the votes of an existing comment", () => {
+    const newVote = { inc_votes: 2 };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(newVote)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comment).toMatchObject({
+          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          votes: 18,
+          author: "butter_bridge",
+          article_id: 9,
+          created_at: "2020-04-06T12:17:00.000Z",
+        });
+      });
+  });
+  test("PATCH: 400 responds with appropriate status and error message when provided with a malformed vote object", () => {
+    const newVote = {
+      not_an_article_property: 12,
+    };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(newVote)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid body");
+      });
+  });
+  test("PATCH: 400 responds with appropriate status and error message when provided with an vote object that violates the table schema", () => {
+    const newVote = {
+      inc_votes: "not_a_number",
+    };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(newVote)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("PATCH: 404 responds with appropriate status and error message when provided a valid but non-existent comment_id", () => {
+    const newVote = {
+      inc_votes: 12,
+    };
+    return request(app)
+      .patch("/api/comments/9999")
+      .send(newVote)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Comment does not exist");
+      });
+  });
+  test("PATCH: 400 responds with appropriate status and error message when provided an invalid comment_id", () => {
+    const newVote = {
+      inc_votes: 21,
+    };
+    return request(app)
+      .patch("/api/comments/not_a_number")
+      .send(newVote)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+});
