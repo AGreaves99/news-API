@@ -555,7 +555,7 @@ describe("PATCH /api/comments/:comment_id", () => {
   });
 });
 
-describe.only("POST /api/articles", () => {
+describe("POST /api/articles", () => {
   test("POST 201: responds with the comment posted ", () => {
     const newArticle = {
       author: "butter_bridge",
