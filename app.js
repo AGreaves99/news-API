@@ -1,22 +1,15 @@
 const express = require("express");
-
-const {
-  getArticles,
-  getArticleById,
-  getCommentsByArticleId,
-  postComment,
-  patchArticle,
-} = require("./controllers/articles.controllers");
 const {
   endpointError,
   customErrors,
   pSQLErrors,
   serverError,
 } = require("./controllers/errorHandling.controllers");
-const { deleteComment } = require("./controllers/comments.controllers");
-const { getUsers } = require("./controllers/users.controllers");
 const apiRouter = require("./routes/api-router");
 const topicsRouter = require("./routes/topics-router");
+const articlesRouter = require("./routes/articles-router");
+const commentsRouter = require("./routes/comments-router");
+const usersRouter = require("./routes/users-router");
 
 const app = express();
 
@@ -26,19 +19,11 @@ app.use("/api", apiRouter)
 
 app.use("/api/topics", topicsRouter)
 
-app.get("/api/articles", getArticles);
+app.use("/api/articles", articlesRouter)
 
-app.get("/api/articles/:article_id", getArticleById);
+app.use("/api/comments", commentsRouter)
 
-app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
-
-app.post("/api/articles/:article_id/comments", postComment);
-
-app.patch("/api/articles/:article_id", patchArticle);
-
-app.delete("/api/comments/:comment_id", deleteComment);
-
-app.get("/api/users", getUsers)
+app.use("/api/users", usersRouter)
 
 app.all("*", endpointError);
 
