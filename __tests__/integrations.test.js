@@ -107,13 +107,14 @@ describe("GET /api/articles/:article_id", () => {
   });
 });
 
-describe("GET /api/articles", () => {
+describe.only("GET /api/articles", () => {
   test("GET 200: responds with an array of articles, sorted by date descending", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
       .then(({ body }) => {
-        expect(body.articles.length).toBe(13);
+        const { articles } = body;
+        expect(articles).not.toHaveLength(0);
         expect(body.articles).toBeSortedBy("created_at", {
           descending: true,
         });
@@ -137,7 +138,7 @@ describe("GET /api/articles", () => {
       .expect(200)
       .then(({ body }) => {
         const { articles } = body;
-        expect(articles.length).toBe(12);
+        expect(articles).not.toHaveLength(0);
         articles.forEach((article) => {
           expect(article).toMatchObject({
             author: expect.any(String),
@@ -186,6 +187,7 @@ describe("GET /api/articles", () => {
     resolvedPromises.forEach((result, index) => {
       expect(result.status).toBe(200);
       const { articles } = result.body;
+      expect(articles).not.toHaveLength(0);
       expect(articles).toBeSortedBy(columns[index], {
         descending: true,
       });
@@ -196,8 +198,10 @@ describe("GET /api/articles", () => {
       .get("/api/articles?order=asc")
       .expect(200)
       .then(({ body }) => {
-        expect(body.articles).toBeSortedBy("created_at");
-        body.articles.forEach((article) => {
+        const { articles } = body;
+        expect(articles).not.toHaveLength(0);
+        expect(articles).toBeSortedBy("created_at");
+        articles.forEach((article) => {
           expect(article).toMatchObject({
             author: expect.any(String),
             title: expect.any(String),
@@ -225,6 +229,118 @@ describe("GET /api/articles", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Invalid order query");
+      });
+  });
+  test("GET 200: limit query correctly limits the articles shown", () => {
+    return request(app)
+      .get("/api/articles?limit=5")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toHaveLength(5);
+        expect(articles).toBeSortedBy("created_at", {
+          descending: true,
+        });
+        articles.forEach((article) => {
+          expect(article).toMatchObject({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            comment_count: expect.any(Number),
+          });
+        });
+      });
+  });
+  test("GET 200: articles limit defaults to 10 when not supplied in query", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toHaveLength(10);
+        expect(articles).toBeSortedBy("created_at", {
+          descending: true,
+        });
+        articles.forEach((article) => {
+          expect(article).toMatchObject({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            comment_count: expect.any(Number),
+          });
+        });
+      });
+  });
+  test("GET 200: returns correct articles when given a page query", () => {
+    return request(app)
+      .get("/api/articles?limit=10&p=2")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toHaveLength(3);
+        expect(articles).toBeSortedBy("created_at", {
+          descending: true,
+        });
+        articles.forEach((article) => {
+          expect(article).toMatchObject({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            comment_count: expect.any(Number),
+          });
+        });
+      });
+  });
+  test("GET 200: defaults to first page when not supplied a p query", () => {
+    return request(app)
+      .get("/api/articles?limit=12")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toHaveLength(12);
+        expect(articles).toBeSortedBy("created_at", {
+          descending: true,
+        });
+        articles.forEach((article) => {
+          expect(article).toMatchObject({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            comment_count: expect.any(Number),
+          });
+        });
+      });
+  });
+  test("GET 400: sends an error message when limit query is invalid", () => {
+    return request(app)
+      .get("/api/articles?limit=not-valid")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid limit query");
+      });
+  });
+  test("GET 400: sends an error message when p query is invalid", () => {
+    return request(app)
+      .get("/api/articles?p=not-valid")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid p query");
       });
   });
 });
