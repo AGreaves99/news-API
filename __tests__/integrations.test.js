@@ -313,7 +313,7 @@ describe("POST /api/articles/:article_id/comments", () => {
         expect(body.msg).toBe("Invalid body");
       });
   });
-  test("POST: 400 responds with appropriate status and error message when provided a valid but non-existent article_id", () => {
+  test("POST: 404 responds with appropriate status and error message when provided a valid but non-existent article_id", () => {
     const newComment = {
       username: "butter_bridge",
       body: "This is a good article",
@@ -551,6 +551,106 @@ describe("PATCH /api/comments/:comment_id", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Bad request");
+      });
+  });
+});
+
+describe.only("POST /api/articles", () => {
+  test("POST 201: responds with the comment posted ", () => {
+    const newArticle = {
+      author: "butter_bridge",
+      title: "This Best Article Ever Written",
+      body: "I have written an article so fantastic that my mind now transcends all mortal limitation",
+      topic: "paper",
+      article_img_url: "https://article-img.jpeg",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.article).toMatchObject({
+          author: "butter_bridge",
+          title: "This Best Article Ever Written",
+          body: "I have written an article so fantastic that my mind now transcends all mortal limitation",
+          topic: "paper",
+          article_img_url: "https://article-img.jpeg",
+          article_id: 14,
+          votes: 0,
+          created_at: expect.any(String),
+          comment_count: 0,
+        });
+      });
+  });
+  test("POST 201: responds with the comment posted and a default image when an image URL is not given", () => {
+    const newArticle = {
+      author: "butter_bridge",
+      title: "This Best Article Ever Written",
+      body: "I have written an article so fantastic that my mind now transcends all mortal limitation",
+      topic: "paper",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.article).toMatchObject({
+          author: "butter_bridge",
+          title: "This Best Article Ever Written",
+          body: "I have written an article so fantastic that my mind now transcends all mortal limitation",
+          topic: "paper",
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          article_id: 14,
+          votes: 0,
+          created_at: expect.any(String),
+          comment_count: 0,
+        });
+      });
+  });
+  test("POST: 400 responds with appropriate status and error message when provided with a malformed article object", () => {
+    const newArticle = {
+      not_an_author: "not-an-author",
+      title: "This Best Article Ever Written",
+      body: "I have written an article so fantastic that my mind now transcends all mortal limitation",
+      topic: "paper",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid body");
+      });
+  });
+  test("POST: 404 responds with appropriate status and error message when provided an object with a non-existent author property", () => {
+    const newArticle = {
+      author: "not-an-author",
+      title: "This Best Article Ever Written",
+      body: "I have written an article so fantastic that my mind now transcends all mortal limitation",
+      topic: "paper",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Request not found");
+      });
+  });
+  test("POST: 404 responds with appropriate status and error message when provided an object with a non-existent topic property", () => {
+    const newArticle = {
+      author: "butter_bridge",
+      title: "This Best Article Ever Written",
+      body: "I have written an article so fantastic that my mind now transcends all mortal limitation",
+      topic: "not-a-topic",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Request not found");
       });
   });
 });

@@ -4,6 +4,7 @@ const {
   selectCommentsByArticleId,
   insertComment,
   updateArticle,
+  insertArticle,
 } = require("../models/articles.models");
 const { checkExists } = require("../models/shared.models");
 
@@ -58,6 +59,15 @@ exports.patchArticle = (req, res, next) => {
   updateArticle([inc_votes, article_id])
     .then((article) => {
       res.status(200).send({ article });
+    })
+    .catch(next);
+};
+
+exports.postArticle = (req, res, next) => {
+  const { title, topic, author, body, article_img_url } = req.body;
+  insertArticle([title, topic, author, body, article_img_url])
+    .then((article) => {
+      res.status(201).send({ article });
     })
     .catch(next);
 };
