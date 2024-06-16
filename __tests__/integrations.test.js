@@ -107,7 +107,7 @@ describe("GET /api/articles/:article_id", () => {
   });
 });
 
-describe.only("GET /api/articles", () => {
+describe("GET /api/articles", () => {
   test("GET 200: responds with an array of articles, sorted by date descending", () => {
     return request(app)
       .get("/api/articles")
