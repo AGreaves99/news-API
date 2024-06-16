@@ -8,8 +8,8 @@ const {
 const { checkExists } = require("../models/shared.models");
 
 exports.getArticles = (req, res, next) => {
-  const { topic } = req.query;
-  const articlesAndQuery = [selectArticles(topic)];
+  const { topic, sort_by, order } = req.query;
+  const articlesAndQuery = [selectArticles(topic, sort_by, order)];
   if (topic) {
     articlesAndQuery.push(checkExists("topics", "slug", topic));
   }

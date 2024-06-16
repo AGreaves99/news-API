@@ -107,8 +107,8 @@ describe("GET /api/articles/:article_id", () => {
   });
 });
 
-describe("GET /api/articles", () => {
-  test("GET 200: responds with an array of articles", () => {
+describe.only("GET /api/articles", () => {
+  test("GET 200: responds with an array of articles, sorted by date descending", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
@@ -166,6 +166,65 @@ describe("GET /api/articles", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("slug not found");
+      });
+  });
+  test("GET 200: sends an array of articles to the client sorted by the respective columns in descending order", async () => {
+    const columns = [
+      "article_id",
+      "author",
+      "title",
+      "topic",
+      "created_at",
+      "votes",
+      "article_img_url",
+      "comment_count",
+    ];
+    const queryPromises = columns.map((column) => {
+      return request(app).get(`/api/articles?sort_by=${column}`);
+    });
+    const resolvedPromises = await Promise.all(queryPromises);
+    resolvedPromises.forEach((result, index) => {
+      expect(result.status).toBe(200);
+      const { articles } = result.body;
+      expect(articles).toBeSortedBy(columns[index], {
+        descending: true,
+      });
+    });
+  });
+  test("GET 200: responds with an array of articles, sorted by date ascending", () => {
+    return request(app)
+      .get("/api/articles?order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeSortedBy("created_at");
+        body.articles.forEach((article) => {
+          expect(article).toMatchObject({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            comment_count: expect.any(Number),
+          });
+        });
+      });
+  });
+  test("GET 400: sends an error message when sort_by query is not a valid column", () => {
+    return request(app)
+      .get("/api/articles?sort_by=hello")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid sort query");
+      });
+  });
+  test("GET 400: sends an error message when order query is not asc or desc", () => {
+    return request(app)
+      .get("/api/articles?order=hello")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid order query");
       });
   });
 });
