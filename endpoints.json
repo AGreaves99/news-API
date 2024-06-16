@@ -116,5 +116,19 @@
         "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
       }
     }
+  },
+  "PATCH /api/comments/:comment_id": {
+    "description": "serves an object with comment_id matching the one from the endpoint",
+    "exampleRequestBody": {
+      "inc_votes": 2
+    },
+    "exampleResponse": {"comment": {
+      "comment_id": 9,
+      "body": "Superficially charming",
+      "article_id": 1,
+      "author": "icellusedkars",
+      "votes": 4,
+      "created_at": "2020-01-01T03:08:00.000Z"
+    }}
   }
 }
