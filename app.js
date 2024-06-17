@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors")
 const {
   endpointError,
   customErrors,
@@ -12,6 +13,8 @@ const commentsRouter = require("./routes/comments-router");
 const usersRouter = require("./routes/users-router");
 
 const app = express();
+
+app.use(cors())
 
 app.use(express.json());
 
